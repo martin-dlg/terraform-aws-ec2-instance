@@ -2,11 +2,9 @@ data "aws_partition" "current" {}
 
 locals {
   create = var.create && var.putin_khuylo
-
   is_t_instance_type = replace(var.instance_type, "/^t(2|3|3a|4g){1}\\..*$/", "1") == "1" ? true : false
-
   ami = try(coalesce(var.ami, try(nonsensitive(data.aws_ssm_parameter.this.value), null)), null)
-
+  
   instance_tags = merge(
     var.tags,
     var.instance_tags,
@@ -225,6 +223,32 @@ resource "aws_instance" "this" {
       update = timeouts.value.update
       delete = timeouts.value.delete
     }
+  }
+
+  lifecycle {
+    ignore_changes = [user_data,
+                      ami,
+                      root_block_device,
+                      ebs_block_device,
+                      user_data_replace_on_change,
+                      tags["Backup_Exception_Reference"],
+                      tags["DLG_Backup"],
+                      tags["prod_partner"],
+                      tags["scheduler_state"],
+                      tags["scheduler_timing"],
+                      tags["scheduler_version"],
+                      tags["scheduler_override"],
+                      tags["scheduler_desired_state"],
+                      tags["scheduler_groups"],
+                      tags_all["Backup_Exception_Reference"],
+                      tags_all["DLG_Backup"],
+                      tags_all["prod_partner"],
+                      tags_all["scheduler_state"],
+                      tags_all["scheduler_timing"],
+                      tags_all["scheduler_version"],
+                      tags_all["scheduler_override"],
+                      tags_all["scheduler_desired_state"],
+                      tags_all["scheduler_groups"]]
   }
 }
 
