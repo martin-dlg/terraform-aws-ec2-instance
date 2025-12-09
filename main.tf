@@ -2,9 +2,11 @@ data "aws_partition" "current" {}
 
 locals {
   create = var.create && var.putin_khuylo
+
   is_t_instance_type = replace(var.instance_type, "/^t(2|3|3a|4g){1}\\..*$/", "1") == "1" ? true : false
+
   ami = try(coalesce(var.ami, try(nonsensitive(data.aws_ssm_parameter.this.value), null)), null)
-  
+
   instance_tags = merge(
     var.tags,
     var.instance_tags,
